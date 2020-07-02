@@ -47,6 +47,12 @@
                   <br>
                   
                   <br>
+                  <b>Velocity (degrees per send)</b>
+                  Latitude Velocity<input type="text" name="x_velocity" id="x_velocity" value="0"><br>
+                  Longitude Velocity<input type="text" name="y_velocity" id="y_velocity" value="0"><br>
+                  <br>
+
+                  <br>
                   <b>Send Frequency </b><br>
                   Send Frequency (ms)<input type="text" name="sendfrequency" id="sendfrequency" value="5000"><br>
                           
@@ -69,11 +75,16 @@
             var allDisEntities = new Object();
             var pduFactory = new dis.PduFactory();
             var espdu = new dis.EntityStatePdu();
+
+            var conversion = new dis.CoordinateConversion();
+            var latLonAlt = {};
             
             var rifleMunition = new dis.EntityType();
             var damageHits = 0;
             var direction = 1;
             
+            var x_vel = 0.0;
+            var y_vel = 0.0;
             
             espdu.entityID.entity = Math.round(Math.random() * 64000);
             
@@ -120,10 +131,12 @@
                 var lat = parseFloat(document.getElementById("latitude").value);
                 var lon = parseFloat(document.getElementById("longitude").value);
                 var alt = parseFloat(document.getElementById("altitude").value);
+
+		// Velocity
+                x_vel = parseFloat(document.getElementById("x_velocity").value);
+                y_vel = parseFloat(document.getElementById("y_velocity").value);
                 
                 // Convert lat/lon/alt to DIS coordinates
-                var conversion = new dis.CoordinateConversion();
-                latLonAlt = {};
                 latLonAlt.lat = lat;
                 latLonAlt.lon = lon;
                 latLonAlt.alt = alt;
@@ -151,6 +164,16 @@
             {              
                 var dataBuffer = new ArrayBuffer(1000); // typically 144 bytes, make it bigger for safety
                 var outputStream = new dis.OutputStream(dataBuffer);
+
+                latLonAlt.lat += x_vel;
+                latLonAlt.lon += y_vel;
+                //console.log("Geodetic location:", latLonAlt);
+
+                disCoordinates = conversion.getXYZfromLatLonAltDegrees(latLonAlt);
+                espdu.entityLocation.x = disCoordinates.x;
+                espdu.entityLocation.y = disCoordinates.y;
+                espdu.entityLocation.z = disCoordinates.z;
+                //console.log("Location:", disCoordinates);
                 espdu.encodeToBinary(outputStream);
                 
                 var trimmedData = outputStream.toByteArray();
