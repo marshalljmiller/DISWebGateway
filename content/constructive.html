@@ -183,6 +183,9 @@
                 latLonAlt.lon += y_vel;
                 //console.log("Geodetic location:", latLonAlt);
 
+                document.getElementById("latitude").value = latLonAlt.lat;
+                document.getElementById("longitude").value = latLonAlt.lon;
+
                 disCoordinates = conversion.getXYZfromLatLonAltDegrees(latLonAlt);
                 espdu.entityLocation.x = disCoordinates.x;
                 espdu.entityLocation.y = disCoordinates.y;
