@@ -56,7 +56,9 @@
                   <b>Send Frequency </b><br>
                   Send Frequency (ms)<input type="text" name="sendfrequency" id="sendfrequency" value="5000"><br>
                           
-            <input type="button" name="submit" value="Start Sending PDUs" onClick="constructiveSend(this.form)" >
+            <br>
+            <input type="button" name="submit" value="Start Sending PDUs" onClick="constructiveSend(this.form)" ><br>
+            <input type="button" name="submit" value="Stop Sending PDUs" onClick="stopConstructiveSend(this.form)" >
 </form>
         </div>
         
@@ -88,6 +90,18 @@
             
             espdu.entityID.entity = Math.round(Math.random() * 64000);
             
+            function stopConstructiveSend(form)
+            {                
+                // stop the send timer if one exists
+                if(timerID != 0)
+                {
+                    console.log("timerID:", timerID)
+                    clearInterval(timerID);
+                    timerID = 0;
+                    console.log("Killed old periodic send task")
+                }
+            }
+
             /**
              * Called when the user clicks the "submit" button. Starts a task
              * to retrieve the field values, and periodically send ESPDUs based
